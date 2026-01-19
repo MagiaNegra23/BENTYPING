@@ -155,40 +155,36 @@ class Proposta {
 async function pegaDados(page) {
     console.log('--- Aguardando dados ---');
     await page.waitForSelector('.row.g-1', { timeout: 10000 })
-    //Extrair Dados
-    const dadosExtraidos = await page.evaluate(() => {
-        // Tudo aqui dentro é JavaScript do browser (DOM), não Node.js
-        const linhas = document.querySelectorAll('.row.g-1');
-        const resultados = [];
-        return Array.from(linhas).map(linha => {
-            const colunas = linha.querySelectorAll('td');
-            return {
-                nome: colunas[0]?.innerText.trim(),
-                cpf: colunas[1]?.innerText.trim(),
-                matricula:  colunas[4]?.innerText.trim(),
-                valorbeneficio: colunas[5]?.innerText.trim(),
-                idad: colunas[5]?.innerText.trim(),
+    const novaProposta = new Proposta();
+    novaProposta.nome = await page.querySelectorAll('#nome_beneficiario')[0];
+    novaProposta.cpf = await page.querySelectorAll('#cpf_beneficiario')[0];
+    novaProposta.matricula = await page.querySelectorAll('#nb_beneficiario')[0];
+    novaProposta.valorbeneficio = await page.querySelectorAll('.mb-0.text-success.fw-bold')[0];
+    novaProposta.nomemae = await page.querySelectorAll('#nomeMae_beneficiario')[0];
+    novaProposta.datanasc = await page.querySelectorAll('#light-text')[0];
+    novaProposta.rg = await page.querySelectorAll('#rg_beneficiario')[0];
+    novaProposta.uf = await page.querySelectorAll('#mb-0')[0];
+    novaProposta.municipio = await page.querySelectorAll('#mb-0')[1];
+    novaProposta.cep = await page.querySelectorAll('#mb-0')[2];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    
+    // linhas.forEach(linha => {
+    //     const colunas = linha.querySelectorAll('td');
+    //     if (colunas.length > 0) {
+    //         resultados.push({
+    //             nome: colunas[0]?.innerText.trim(),
+    //             cpf: colunas[1]?.innerText.trim(),
+    //             ddb: colunas[2]?.innerText.trim(),
+    //             liberado: colunas[3]?.querySelector('span')?.innerText.trim(), // Exemplo pegando elemento aninhado
+    //             benificio: colunas[4]?.innerText.trim(),
+    //             valorbeneficio: colunas[5]?.innerText.trim(),
+    //             idade: colunas[6]?.innerText.trim(),
+    //             especie:  colunas[7]?.innerText.trim()
+    //         });
+    //     }
+    // });
 
-            }
-        })
-
-        // linhas.forEach(linha => {
-        //     const colunas = linha.querySelectorAll('td');
-        //     if (colunas.length > 0) {
-        //         resultados.push({
-        //             nome: colunas[0]?.innerText.trim(),
-        //             cpf: colunas[1]?.innerText.trim(),
-        //             ddb: colunas[2]?.innerText.trim(),
-        //             liberado: colunas[3]?.querySelector('span')?.innerText.trim(), // Exemplo pegando elemento aninhado
-        //             benificio: colunas[4]?.innerText.trim(),
-        //             valorbeneficio: colunas[5]?.innerText.trim(),
-        //             idade: colunas[6]?.innerText.trim(),
-        //             especie:  colunas[7]?.innerText.trim()
-        //         });
-        //     }
-        // });
-
-        return resultados; // Retorna o array para o contexto do Node.js
-    });
+    //   return resultados; // Retorna o array para o contexto do Node.js
+    //});
 
 }
