@@ -5,7 +5,7 @@ class Proposta {
     constructor(nome, cpf, datanasc, rg, orgao, ufrg, dataemissao, sexo, nomemae, estadocivil, nacionalidade, estadonatural, cidadenatural,
         especie, categoriabeneficio, matricula, valorbeneficio, cep, logradouro, numero, uf, municipio, bairro,
         ddd, numerocell, email, banco, agencia, conta, tipoconta, meiopagamento, tabelamargem, vlparcela, tabelaaumento,
-        nrcontrato, vlaumento,pensao, representante, bloqemprestimo, elegemprestimo, descbloq, dataext) {
+        nrcontrato, vlaumento, pensao, representante, bloqemprestimo, elegemprestimo, descbloq, dataext) {
         this._nome = nome;
         this._cpf = cpf;
         this._datanasc = datanasc;
@@ -42,13 +42,13 @@ class Proposta {
         this._tabelaaumento = tabelaaumento;
         this._vlaumento = vlaumento;
         this._nrcontrato = nrcontrato;
-        this._pensao = pensao;    
+        this._pensao = pensao;
         this._representante = representante;
         this._bloqemprestimo = bloqemprestimo;
         this._elegemprestimo = elegemprestimo;
         this._descbloq = descbloq;
-        this._dataext = dataext;    
-        
+        this._dataext = dataext;
+
     }
     get nome() { return this._nome; }
     set nome(valor) { this._nome = valor; }
@@ -207,7 +207,7 @@ async function pegaDados(page) {
     //fazer código para separar o DDD to telefone
     novaProposta.ddd = await page.querySelectorAll('phone_with_ddd.fw-bold')[8];
     novaProposta.ddd = await page.querySelectorAll('phone_with_ddd.fw-bold')[8];
-
+    //
     // linhas.forEach(linha => {
     //     const colunas = linha.querySelectorAll('td');
     //     if (colunas.length > 0) {
