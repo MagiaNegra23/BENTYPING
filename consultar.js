@@ -1,0 +1,39 @@
+const puppeteer = require('puppeteer');
+
+async function abreConsulta(page) {
+  //Fecha o botão de anúncio novo, talvez alterar 
+  await page.click('.swal2-close')
+
+  //Abrir a cascata da Consulta
+  await page.evaluate((seletor) => {
+    const el = document.querySelector(seletor);
+    if (el) {
+      el.click(); // Clique nativo do navegador
+    }
+  }, 'ul.menu-inner.mt-3.ps li:nth-child(2) a.menu-link.menu-toggle');
+
+  //Clicar em INSS
+  await page.evaluate((seletor) => {
+    const el = document.querySelector(seletor);
+    if (el) {
+      el.click(); // Clique nativo do navegador
+    }
+  }, 'ul.menu-sub li:nth-child(1) a.menu-link');
+
+  console.log('--- Consultando ---');
+  //Espera a página carregar
+  await new Promise(r => setTimeout(r, 2000));
+
+  //Ativar checkbox da consulta
+  page.waitForNavigation({ waitUntil: 'networkidle2' }), // 1. Espera a navegação acabar
+    page.click('#consultaPremium')// 2. Dispara o clique
+
+  //Escrever a consulta
+  // const x = 'x';
+  // await page.click('#input')
+  // await page.type('#input', x, { delay: 100 })
+
+  //Submit
+  //await page.click('#localizar')
+};
+module.exports = { abreConsulta };
