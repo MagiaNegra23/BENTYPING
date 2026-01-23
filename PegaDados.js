@@ -166,7 +166,24 @@ async function pegaDados(page) {
     novaProposta.uf = await page.querySelectorAll('#mb-0')[0];
     novaProposta.municipio = await page.querySelectorAll('#mb-0')[1];
     novaProposta.cep = await page.querySelectorAll('#mb-0')[2];
+    novaProposta.banco = await page.querySelectorAll('##mb-0.text-gray.fw-bold')[0];
+    novaProposta.uf = await page.querySelectorAll('#mb-0')[5];
+    novaProposta.agencia = await page.querySelectorAll('#mb-0')[6];
+    novaProposta.conta = await page.querySelectorAll('#mb-0.text-info')[0];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0.text-gray.fw-bold')[0];
     novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
+    
+    novaProposta.numero = 0;
+
     
     // linhas.forEach(linha => {
     //     const colunas = linha.querySelectorAll('td');
