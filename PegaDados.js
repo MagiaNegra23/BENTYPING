@@ -5,7 +5,7 @@ class Proposta {
     constructor(nome, cpf, datanasc, rg, orgao, ufrg, dataemissao, sexo, nomemae, estadocivil, nacionalidade, estadonatural, cidadenatural,
         especie, categoriabeneficio, matricula, valorbeneficio, cep, logradouro, numero, uf, municipio, bairro,
         ddd, numerocell, email, banco, agencia, conta, tipoconta, meiopagamento, tabelamargem, vlparcela, tabelaaumento,
-        nrcontrato, vlaumento) {
+        nrcontrato, vlaumento, pensao, representante, bloqempres, elegempres, descbloq, dataext) {
         this._nome = nome;
         this._cpf = cpf;
         this._datanasc = datanasc;
@@ -42,6 +42,12 @@ class Proposta {
         this._tabelaaumento = tabelaaumento;
         this._vlaumento = vlaumento;
         this._nrcontrato = nrcontrato;
+        this._pensao = pensao;
+        this._representante = representante;
+        this._bloqempres = bloqempres;
+        this._elegempres = elegempres;
+        this._descbloq = descbloq;
+        this._dataext = dataext;
     }
     get nome() { return this._nome; }
     set nome(valor) { this._nome = valor; }
@@ -150,58 +156,101 @@ class Proposta {
 
     get nrcontrato() { return this._nrcontrato; }
     set nrcontrato(valor) { this._nrcontrato = valor; }
+
+    get pensao() { return this._pensao; }
+    set pensao(valor) { this._pensao = valor; }
+
+    get representante() { return this._representante; }
+    set representante(valor) { this._representante = valor; }
+
+    get bloqempres() { return this._bloqempres; }
+    set bloqempres(valor) { this._bloqempres = valor; }
+
+    get elegempres() { return this._elegempres }
+    set elegempres(valor) { this._elegempres = valor }
+
+    get descbloq() { return this._descbloq }
+    set descbloq(valor) { this._descbloq = valor }
+
+    get dataext() { return this._dataext }
+    set dataext(valor) { this._dataext = valor }
 }
 
 async function pegaDados(page) {
-    console.log('--- Aguardando dados ---');
-    await page.waitForSelector('.row.g-1', { timeout: 10000 })
+    console.log('--- Aguardando carregamento dos dados ---');
+
+    // Aguarda o container principal
+    await page.waitForSelector('.row.g-1', { timeout: 10000 });
+
     const novaProposta = new Proposta();
-    novaProposta.nome = await page.querySelectorAll('#nome_beneficiario')[0];
-    novaProposta.cpf = await page.querySelectorAll('#cpf_beneficiario')[0];
-    novaProposta.matricula = await page.querySelectorAll('#nb_beneficiario')[0];
-    novaProposta.valorbeneficio = await page.querySelectorAll('.mb-0.text-success.fw-bold')[0];
-    novaProposta.nomemae = await page.querySelectorAll('#nomeMae_beneficiario')[0];
-    novaProposta.datanasc = await page.querySelectorAll('#light-text')[0];
-    novaProposta.rg = await page.querySelectorAll('#rg_beneficiario')[0];
-    novaProposta.uf = await page.querySelectorAll('#mb-0')[0];
-    novaProposta.municipio = await page.querySelectorAll('#mb-0')[1];
-    novaProposta.cep = await page.querySelectorAll('#mb-0')[2];
-    novaProposta.banco = await page.querySelectorAll('##mb-0.text-gray.fw-bold')[0];
-    novaProposta.uf = await page.querySelectorAll('#mb-0')[5];
-    novaProposta.agencia = await page.querySelectorAll('#mb-0')[6];
-    novaProposta.conta = await page.querySelectorAll('#mb-0.text-info')[0];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0.text-gray.fw-bold')[0];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    novaProposta.logradouro = await page.querySelectorAll('#mb-0')[3];
-    
+
+    /**
+     * Busca o valor baseado no texto de um parágrafo (âncora).
+     * Procura um <p> que contenha o 'titulo' e retorna o texto do PRÓXIMO elemento.
+     */
+    const buscarPorTexto = async (titulo) => {
+        try {
+            return await page.evaluate((txt) => {
+                const paragrafos = Array.from(document.querySelectorAll('p, small, span, b'));
+
+                // Mudamos de .includes() para uma comparação mais rigorosa
+                const alvo = paragrafos.find(p => {
+                    const textoInterno = p.innerText.trim().toUpperCase();
+                    // Verifica se o texto é EXATAMENTE igual ou se termina com ":"
+                    // Isso evita confundir "RG" com "MARGEM"
+                    return textoInterno === txt.toUpperCase() || textoInterno === txt.toUpperCase() + ":";
+                });
+
+                if (alvo && alvo.nextElementSibling) {
+                    return alvo.nextElementSibling.innerText.trim();
+                }
+
+                return "NÃO ENCONTRADO";
+            }, titulo);
+        } catch (e) {
+            return "ERRO NA BUSCA";
+        }
+    };
+    // --- CAPTURA INTELIGENTE (SEM ÍNDICES) ---
+    // Substitua os textos abaixo pelos títulos REAIS que aparecem no site
+    novaProposta.nome = await buscarPorTexto('Nome');
+    novaProposta.cpf = await buscarPorTexto('CPF');
+    novaProposta.matricula = await buscarPorTexto('Benefício'); // ou 'NB'
+    novaProposta.nomemae = await buscarPorTexto('Nome da Mãe');
+    novaProposta.datanasc = await buscarPorTexto('Data Nascimento');
+    novaProposta.rg = await buscarPorTexto('RG'); // ou 'RG'
+
+    // Localização e Endereço
+    novaProposta.municipio = await buscarPorTexto('Município');
+    novaProposta.uf = await buscarPorTexto('UF');
+    novaProposta.ufrg = await buscarPorTexto('UF');
+    novaProposta.cep = await buscarPorTexto('CEP');
+    novaProposta.logradouro = await buscarPorTexto('Endereco');
+
+    // Dados Financeiros
+    novaProposta.valorbeneficio = await buscarPorTexto('Valor do Benefício');
+    novaProposta.banco = await buscarPorTexto('Dados Bancário');
+    novaProposta.agencia = await buscarPorTexto('Número da Agência');
+    novaProposta.conta = await buscarPorTexto('Conta');
+    novaProposta.tipoconta = await buscarPorTexto('Tipo de Conta');
+
+    // Status (Bloqueios/Elegibilidade)
+    novaProposta.pensao = await buscarPorTexto('Pensão Alimentícia');
+    novaProposta.bloqempres = await buscarPorTexto('Bloqueado para Empréstimo');
+    novaProposta.elegempres = await buscarPorTexto('Elegível para Empréstimo');
+    novaProposta.dataext = await buscarPorTexto('Data de Extinção');
+    novaProposta.descbloq = await buscarPorTexto('Descrição do Bloqueio')
+
+    // Contato
+    const telefoneBruto = await buscarPorTexto('Telefone');
+    novaProposta.numerocell = telefoneBruto;
+    novaProposta.ddd = telefoneBruto; // O seu SET na classe cuidará de separar
+
     novaProposta.numero = 0;
 
-    
-    // linhas.forEach(linha => {
-    //     const colunas = linha.querySelectorAll('td');
-    //     if (colunas.length > 0) {
-    //         resultados.push({
-    //             nome: colunas[0]?.innerText.trim(),
-    //             cpf: colunas[1]?.innerText.trim(),
-    //             ddb: colunas[2]?.innerText.trim(),
-    //             liberado: colunas[3]?.querySelector('span')?.innerText.trim(), // Exemplo pegando elemento aninhado
-    //             benificio: colunas[4]?.innerText.trim(),
-    //             valorbeneficio: colunas[5]?.innerText.trim(),
-    //             idade: colunas[6]?.innerText.trim(),
-    //             especie:  colunas[7]?.innerText.trim()
-    //         });
-    //     }
-    // });
+    console.log('--- RESULTADO DA CAPTURA (POR ÂNCORA) ---');
+    console.table(novaProposta);
 
-    //   return resultados; // Retorna o array para o contexto do Node.js
-    //});
-
+    return;
 }
+module.exports = { pegaDados };

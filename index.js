@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const { abreConsulta } = require('./consultar');
+const {pegaDados} = require('./PegaDados');
 
 (async () => {
     // 1. Configuração do Navegador
@@ -29,7 +30,7 @@ const { abreConsulta } = require('./consultar');
 
         // Digita lentamente (delay) para simular um humano e evitar detecção de bot
         await page.type('#login', 'robson_extrato', { delay: 100 });
-        await page.type('#senha', 'Consigben2@2', { delay: 100 });
+        await page.type('#senha', 'bBbBBb@1222', { delay: 100 });
 
         page.click('#html-alert'), // Clica no botão
 
@@ -43,6 +44,9 @@ const { abreConsulta } = require('./consultar');
         ]);
         //Consultar
         await abreConsulta(page);
+        //AMÉM
+        console.log('PEGANDO DADOS');
+        await pegaDados(page);
         // 5. Navegação Pós-Login (opcional, caso precise ir a outra URL interna)
         // await page.goto('https://exemplo-site-login.com/dashboard/relatorios');
 
@@ -85,7 +89,7 @@ const { abreConsulta } = require('./consultar');
         await page.screenshot({ path: 'erro_execucao.png' });
     } finally {
         // 8. Fechar o navegador (Sempre use o finally para garantir que processos não fiquem abertos)
-        //await browser.close();
+        await browser.close();
         console.log('--- Navegador Fechado ---');
     }
 })();
