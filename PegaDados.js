@@ -211,6 +211,7 @@ async function pegaDados(page) {
             return "ERRO NA BUSCA";
         }
     };
+    
     // --- CAPTURA INTELIGENTE (SEM ÍNDICES) ---
     // Substitua os textos abaixo pelos títulos REAIS que aparecem no site
     novaProposta.nome = await buscarPorTexto('Nome');
@@ -228,26 +229,28 @@ async function pegaDados(page) {
     novaProposta.logradouro = await buscarPorTexto('Endereco');
 
     // Dados Financeiros
-    novaProposta.valorbeneficio = await buscarPorTexto('Valor do Benefício');
-    novaProposta.banco = await buscarPorTexto('Dados Bancário');
+    novaProposta.valorbeneficio = await buscarPorTexto('Valor do Benefício');    
     novaProposta.agencia = await buscarPorTexto('Número da Agência');
-    novaProposta.conta = await buscarPorTexto('Conta');
-    novaProposta.tipoconta = await buscarPorTexto('Tipo de Conta');
+    novaProposta.conta = await buscarPorTexto('Número da Conta');
+    novaProposta.tipoconta = await buscarPorTexto('Tipo de conta');
 
     // Status (Bloqueios/Elegibilidade)
-    novaProposta.pensao = await buscarPorTexto('Pensão Alimentícia');
+    novaProposta.pensao = await buscarPorTexto('Pensão Alimenticia');
     novaProposta.bloqempres = await buscarPorTexto('Bloqueado para Empréstimo');
     novaProposta.elegempres = await buscarPorTexto('Elegível para Empréstimo');
-    novaProposta.dataext = await buscarPorTexto('Data de Extinção');
+    novaProposta.dataext = await buscarPorTexto('Data da Extinção');
     novaProposta.descbloq = await buscarPorTexto('Descrição do Bloqueio')
 
     // Contato
-    const telefoneBruto = await buscarPorTexto('Telefone');
+    const telefoneBruto = await buscarPorTexto('Telefone(s) do Beneficiário');
     novaProposta.numerocell = telefoneBruto;
     novaProposta.ddd = telefoneBruto; // O seu SET na classe cuidará de separar
 
     novaProposta.numero = 0;
-
+    novaProposta.banco = await buscarPorTexto('');
+    const elemento = await page.$x('//div[@class="card-info"]//img[@class="light-image"][3]');
+    novaProposta.banco = await page.evaluate(el => el.innerText, elemento.nextElementSibling.innerText.trim());
+    
     console.log('--- RESULTADO DA CAPTURA (POR ÂNCORA) ---');
     console.table(novaProposta);
 
