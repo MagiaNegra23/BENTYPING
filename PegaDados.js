@@ -175,6 +175,28 @@ class Proposta {
     get dataext() { return this._dataext }
     set dataext(valor) { this._dataext = valor }
 }
+async function buscarPorTexto (page ,titulo){
+    try {
+        return await page.evaluate((txt) => {
+            const paragrafos = Array.from(document.querySelectorAll('p, small, span, b'));
+            // Mudamos de .includes() para uma comparação mais rigorosa
+            const alvo = paragrafos.find(p => {
+                const textoInterno = p.innerText.trim().toUpperCase();
+                // Verifica se o texto é EXATAMENTE igual ou se termina com ":"
+                // Isso evita confundir "RG" com "MARGEM"
+                return textoInterno === txt.toUpperCase() || textoInterno === txt.toUpperCase() + ":";
+            });
+
+            if (alvo && alvo.nextElementSibling) {
+                return alvo.nextElementSibling.innerText.trim();
+            }
+
+            return "NÃO ENCONTRADO";
+        }, titulo);
+    } catch (e) {
+        return "ERRO NA BUSCA";
+    }
+};
 
 async function pegaDados(page) {
     console.log('--- Aguardando carregamento dos dados ---');
@@ -188,72 +210,44 @@ async function pegaDados(page) {
      * Busca o valor baseado no texto de um parágrafo (âncora).
      * Procura um <p> que contenha o 'titulo' e retorna o texto do PRÓXIMO elemento.
      */
-    const buscarPorTexto = async (titulo) => {
-        try {
-            return await page.evaluate((txt) => {
-                const paragrafos = Array.from(document.querySelectorAll('p, small, span, b'));
-
-                // Mudamos de .includes() para uma comparação mais rigorosa
-                const alvo = paragrafos.find(p => {
-                    const textoInterno = p.innerText.trim().toUpperCase();
-                    // Verifica se o texto é EXATAMENTE igual ou se termina com ":"
-                    // Isso evita confundir "RG" com "MARGEM"
-                    return textoInterno === txt.toUpperCase() || textoInterno === txt.toUpperCase() + ":";
-                });
-
-                if (alvo && alvo.nextElementSibling) {
-                    return alvo.nextElementSibling.innerText.trim();
-                }
-
-                return "NÃO ENCONTRADO";
-            }, titulo);
-        } catch (e) {
-            return "ERRO NA BUSCA";
-        }
-    };
     
     // --- CAPTURA INTELIGENTE (SEM ÍNDICES) ---
     // Substitua os textos abaixo pelos títulos REAIS que aparecem no site
-    novaProposta.nome = await buscarPorTexto('Nome');
-    novaProposta.cpf = await buscarPorTexto('CPF');
-    novaProposta.matricula = await buscarPorTexto('Benefício'); // ou 'NB'
-    novaProposta.nomemae = await buscarPorTexto('Nome da Mãe');
-    novaProposta.datanasc = await buscarPorTexto('Data Nascimento');
-    novaProposta.rg = await buscarPorTexto('RG'); // ou 'RG'
+    novaProposta.nome = await buscarPorTexto(page,'Nome');
+    novaProposta.cpf = await buscarPorTexto(page,'CPF');
+    novaProposta.matricula = await buscarPorTexto(page,'Benefício'); // ou 'NB'
+    novaProposta.nomemae = await buscarPorTexto(page,'Nome da Mãe');
+    novaProposta.datanasc = await buscarPorTexto(page,'Data Nascimento');
+    novaProposta.rg = await buscarPorTexto(page,'RG'); // ou 'RG'
 
     // Localização e Endereço
-    novaProposta.municipio = await buscarPorTexto('Município');
-    novaProposta.uf = await buscarPorTexto('UF');
-    novaProposta.ufrg = await buscarPorTexto('UF');
-    novaProposta.cep = await buscarPorTexto('CEP');
-    novaProposta.logradouro = await buscarPorTexto('Endereco');
+    novaProposta.municipio = await buscarPorTexto(page,'Município');
+    novaProposta.uf = await buscarPorTexto(page,'UF');
+    novaProposta.ufrg = await buscarPorTexto(page,'UF');
+    novaProposta.cep = await buscarPorTexto(page,'CEP');
+    novaProposta.logradouro = await buscarPorTexto(page,'Endereco');
 
     // Dados Financeiros
-    novaProposta.valorbeneficio = await buscarPorTexto('Valor do Benefício');    
-    novaProposta.agencia = await buscarPorTexto('Número da Agência');
-    novaProposta.conta = await buscarPorTexto('Número da Conta');
-    novaProposta.tipoconta = await buscarPorTexto('Tipo de conta');
+    novaProposta.valorbeneficio = await buscarPorTexto(page,'Valor do Benefício');
+    novaProposta.agencia = await buscarPorTexto(page,'Número da Agência');
+    novaProposta.conta = await buscarPorTexto(page,'Número da Conta');
+    novaProposta.tipoconta = await buscarPorTexto(page,'Tipo de conta');
 
     // Status (Bloqueios/Elegibilidade)
-    novaProposta.pensao = await buscarPorTexto('Pensão Alimenticia');
-    novaProposta.bloqempres = await buscarPorTexto('Bloqueado para Empréstimo');
-    novaProposta.elegempres = await buscarPorTexto('Elegível para Empréstimo');
-    novaProposta.dataext = await buscarPorTexto('Data da Extinção');
-    novaProposta.descbloq = await buscarPorTexto('Descrição do Bloqueio')
-
-    // Contato
-    const telefoneBruto = await buscarPorTexto('Telefone(s) do Beneficiário');
-    novaProposta.numerocell = telefoneBruto;
-    novaProposta.ddd = telefoneBruto; // O seu SET na classe cuidará de separar
+    novaProposta.pensao = await buscarPorTexto(page,'Pensão Alimenticia');
+    novaProposta.bloqempres = await buscarPorTexto(page,'Bloqueado para Empréstimo');
+    novaProposta.elegempres = await buscarPorTexto(page,'Elegível para Empréstimo');
+    novaProposta.dataext = await buscarPorTexto(page,'Data da Extinção');
+    novaProposta.descbloq = await buscarPorTexto(page,'Descrição do Bloqueio')
 
     novaProposta.numero = 0;
-    novaProposta.banco = await buscarPorTexto('');
-    const elemento = await page.$x('//div[@class="card-info"]//img[@class="light-image"][3]');
-    novaProposta.banco = await page.evaluate(el => el.innerText, elemento.nextElementSibling.innerText.trim());
-    
+    //XPATH MUDOU E TEM QUE SER UTILIZADO DE OUTRA MANEIRA, MAS O MÉTODO DE ESCOLHER O ELEMENTO SEGUE O MESMO
+    //BANCO
+    novaProposta.banco = await page.$eval('small.mb-0.text-gray.fw-bold', el => el.innerText);
+
     console.log('--- RESULTADO DA CAPTURA (POR ÂNCORA) ---');
     console.table(novaProposta);
 
     return;
 }
-module.exports = { pegaDados };
+module.exports = { pegaDados, buscarPorTexto };

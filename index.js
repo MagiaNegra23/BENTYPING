@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 const { abreConsulta } = require('./consultar');
-const {pegaDados} = require('./PegaDados');
+const {pegaDados} = require('./PegaDados.js');
+const { preencheContrato } = require('./contrato.js');
+
 
 (async () => {
     // 1. Configuração do Navegador
@@ -47,6 +49,7 @@ const {pegaDados} = require('./PegaDados');
         //AMÉM
         console.log('PEGANDO DADOS');
         await pegaDados(page);
+        await preencheContrato(page);
         // 5. Navegação Pós-Login (opcional, caso precise ir a outra URL interna)
         // await page.goto('https://exemplo-site-login.com/dashboard/relatorios');
 
