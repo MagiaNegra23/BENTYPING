@@ -31,8 +31,8 @@ async function preencheContrato(page) {
     const novoContrato = new Contrato;
     novoContrato.nrcontrato = await buscarPorTexto(page, 'Contrato');
     novoContrato.banco = await page.$eval('small.mb-0.text-gray.fw-semibold', el => el.innerText);
-    novoContrato.parcela = await buscarPorTexto(page, 'Parcela');
-    novoContrato.valor = await buscarPorTexto(page, 'Valor');
+    novoContrato.parcela = await buscarPorTexto(page, 'Valor da Parcelas');
+    novoContrato.valor = await buscarPorTexto(page, 'Saldo Devedor');
     novoContrato.prazo = await buscarPorTexto(page, 'Prazos');
     console.log('Resultado:');
     console.table(novoContrato);
